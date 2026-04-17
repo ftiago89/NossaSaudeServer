@@ -1,0 +1,7 @@
+{
+  "environment": {
+    "DB": "mongodb://localhost:27017/nossasaudeDb",
+    "S3_BUCKET": "nossasaude-prescriptions-dev",
+    "S3_ENDPOINT": "http://localhost:4566"
+  }
+}

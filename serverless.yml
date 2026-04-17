@@ -1,0 +1,182 @@
+service: nossasaude-server
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  stage: ${opt:stage, 'prod'}
+  region: sa-east-1
+  memorySize: 256
+  timeout: 30
+  environment:
+    DB: ${self:custom.environment.DB}
+    S3_BUCKET: ${self:custom.environment.S3_BUCKET}
+  apiGateway:
+    apiKeys:
+      - nossasaude-app-key
+    usagePlan:
+      quota:
+        limit: 10000
+        period: MONTH
+      throttle:
+        burstLimit: 20
+        rateLimit: 10
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource: arn:aws:s3:::${self:custom.environment.S3_BUCKET}/*
+
+custom:
+  environment: ${file(./config/${self:provider.stage}.json):environment}
+
+functions:
+
+  # ── Health ───────────────────────────────────────────────────────────────────
+  health:
+    name: ${self:service}-health
+    handler: src/handlers/health.check
+    events:
+      - http:
+          method: GET
+          path: /health
+          private: true
+
+  # ── Members ──────────────────────────────────────────────────────────────────
+  createMember:
+    name: ${self:service}-createMember
+    handler: src/handlers/members.create
+    events:
+      - http:
+          method: POST
+          path: /members
+          private: true
+
+  listMembers:
+    name: ${self:service}-listMembers
+    handler: src/handlers/members.list
+    events:
+      - http:
+          method: GET
+          path: /members
+          private: true
+
+  getMember:
+    name: ${self:service}-getMember
+    handler: src/handlers/members.getById
+    events:
+      - http:
+          method: GET
+          path: /members/{id}
+          private: true
+
+  updateMember:
+    name: ${self:service}-updateMember
+    handler: src/handlers/members.update
+    events:
+      - http:
+          method: PATCH
+          path: /members/{id}
+          private: true
+
+  deleteMember:
+    name: ${self:service}-deleteMember
+    handler: src/handlers/members.remove
+    events:
+      - http:
+          method: DELETE
+          path: /members/{id}
+          private: true
+
+  # ── Consultations ─────────────────────────────────────────────────────────────
+  createConsultation:
+    name: ${self:service}-createConsultation
+    handler: src/handlers/consultations.create
+    events:
+      - http:
+          method: POST
+          path: /consultations
+          private: true
+
+  listConsultations:
+    name: ${self:service}-listConsultations
+    handler: src/handlers/consultations.list
+    events:
+      - http:
+          method: GET
+          path: /consultations
+          private: true
+
+  getConsultation:
+    name: ${self:service}-getConsultation
+    handler: src/handlers/consultations.getById
+    events:
+      - http:
+          method: GET
+          path: /consultations/{id}
+          private: true
+
+  updateConsultation:
+    name: ${self:service}-updateConsultation
+    handler: src/handlers/consultations.update
+    events:
+      - http:
+          method: PATCH
+          path: /consultations/{id}
+          private: true
+
+  deleteConsultation:
+    name: ${self:service}-deleteConsultation
+    handler: src/handlers/consultations.remove
+    events:
+      - http:
+          method: DELETE
+          path: /consultations/{id}
+          private: true
+
+  # ── Prescription & Exam Images ────────────────────────────────────────────────
+  uploadUrl:
+    name: ${self:service}-uploadUrl
+    handler: src/handlers/prescriptions.createUploadUrl
+    events:
+      - http:
+          method: POST
+          path: /consultations/{id}/upload-url
+          private: true
+
+  listImages:
+    name: ${self:service}-listImages
+    handler: src/handlers/prescriptions.listImages
+    events:
+      - http:
+          method: GET
+          path: /consultations/{id}/images
+          private: true
+
+  # ── Sync ──────────────────────────────────────────────────────────────────────
+  sync:
+    name: ${self:service}-sync
+    handler: src/handlers/sync.pull
+    events:
+      - http:
+          method: GET
+          path: /sync
+          private: true
+
+resources:
+  Resources:
+    PrescriptionsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.environment.S3_BUCKET}
+        VersioningConfiguration:
+          Status: Enabled
+        LifecycleConfiguration:
+          Rules:
+            - Id: MoveOldImagesToIA
+              Status: Enabled
+              Transitions:
+                - StorageClass: STANDARD_IA
+                  TransitionInDays: 730

@@ -1,0 +1,10 @@
+node_modules/
+.serverless/
+.env
+.DS_Store
+coverage/
+*.log
+config/prod.json
+requests.http
+CLAUDE.md
+docs/
