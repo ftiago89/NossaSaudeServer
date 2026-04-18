@@ -10,8 +10,9 @@
   },
   "scripts": {
     "dev": "nodemon --exec \"serverless offline -c serverless-dev.yml\"",
-    "deploy": "serverless deploy",
-    "test": "jest --silent --coverage"
+    "deploy": "serverless deploy --verbose",
+    "test": "jest --silent --coverage",
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",

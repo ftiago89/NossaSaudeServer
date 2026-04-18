@@ -4,7 +4,7 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 // When S3_ENDPOINT is set (local dev with LocalStack), use path-style
 // addressing and fake credentials — otherwise use standard AWS config.
 const clientConfig = {
-  region: process.env.AWS_REGION || 'sa-east-1',
+  region: process.env.AWS_REGION || 'us-east-1',
   requestChecksumCalculation: 'WHEN_REQUIRED',
   responseChecksumValidation: 'WHEN_REQUIRED',
 };
