@@ -1,5 +1,24 @@
 # Release Notes
 
+## v1.0.0 — 2026-04-18
+
+Primeira versão de produção do NossaSaudeServer — backend implantado na AWS.
+
+### Mudanças em relação à v0.0.1
+
+**Infraestrutura / Deploy**
+- Região alterada de `sa-east-1` para `us-east-1`
+- Timeout das Lambdas reduzido para 25s (respeita limite de 29s do API Gateway)
+- API Key configurada via `config/prod.json` (gitignored)
+- Bucket S3 removido do CloudFormation — gerenciado manualmente na AWS
+- Endpoint `/health` removido
+
+**Dados de demonstração**
+- Script `scripts/seed.js` adicionado e exposto via `npm run seed`
+- Popula o banco local com 3 membros e 9 consultas para o `familyId` de demo
+
+---
+
 ## v0.0.1 — 2026-04-17
 
 Versão inicial do NossaSaudeServer — backend serverless do app de histórico médico familiar NossaSaúde.
