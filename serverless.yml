@@ -4,15 +4,16 @@ provider:
   name: aws
   runtime: nodejs24.x
   stage: ${opt:stage, 'prod'}
-  region: sa-east-1
+  region: us-east-1
   memorySize: 256
-  timeout: 30
+  timeout: 25
   environment:
     DB: ${self:custom.environment.DB}
     S3_BUCKET: ${self:custom.environment.S3_BUCKET}
   apiGateway:
     apiKeys:
-      - nossasaude-app-key
+      - name: nossasaude-app-key
+        value: ${self:custom.environment.API_KEY}
     usagePlan:
       quota:
         limit: 10000
@@ -33,16 +34,6 @@ custom:
   environment: ${file(./config/${self:provider.stage}.json):environment}
 
 functions:
-
-  # ── Health ───────────────────────────────────────────────────────────────────
-  health:
-    name: ${self:service}-health
-    handler: src/handlers/health.check
-    events:
-      - http:
-          method: GET
-          path: /health
-          private: true
 
   # ── Members ──────────────────────────────────────────────────────────────────
   createMember:
@@ -164,19 +155,3 @@ functions:
           method: GET
           path: /sync
           private: true
-
-resources:
-  Resources:
-    PrescriptionsBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.environment.S3_BUCKET}
-        VersioningConfiguration:
-          Status: Enabled
-        LifecycleConfiguration:
-          Rules:
-            - Id: MoveOldImagesToIA
-              Status: Enabled
-              Transitions:
-                - StorageClass: STANDARD_IA
-                  TransitionInDays: 730

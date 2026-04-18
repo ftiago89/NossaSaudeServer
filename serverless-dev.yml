@@ -14,7 +14,7 @@ provider:
   name: aws
   runtime: nodejs24.x
   stage: dev
-  region: sa-east-1
+  region: us-east-1
   memorySize: 256
   timeout: 30
   environment:
@@ -24,15 +24,6 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
 
 functions:
-
-  # ── Health ───────────────────────────────────────────────────────────────────
-  health:
-    name: ${self:service}-dev-health
-    handler: src/handlers/health.check
-    events:
-      - http:
-          method: GET
-          path: /health
 
   # ── Members ──────────────────────────────────────────────────────────────────
   createMember:
