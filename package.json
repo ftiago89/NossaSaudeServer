@@ -1,6 +1,6 @@
 {
   "name": "nossasaude-server",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Family medical history backend — serverless Node.js + AWS Lambda + MongoDB + S3",
   "main": "handler.js",
   "author": "",
